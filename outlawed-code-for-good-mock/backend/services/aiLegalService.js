@@ -290,26 +290,47 @@ class AILegalService {
       };
     }));
 
-    // 2. Fetch landmark precedents from KnowledgeArticle using Vector Search
-    const allArticles = await KnowledgeArticle.find({}).lean();
-    const rankedArticles = await VectorSearchService.rankByVectorSimilarity(
-      queryText,
-      allArticles,
-      a => `${a.title} ${a.summary} ${(a.actsAndSections || []).join(' ')}`
-    );
-
-    const topArticle = rankedArticles[0] || allArticles[0];
-    const landmarkPrecedents = (topArticle?.precedents || []).map(p => ({
-      isPrecedent: true,
-      caseTitle: p.caseTitle,
-      court: p.court,
-      year: p.year,
-      rulingSummary: p.rulingSummary,
-      keyTakeaway: p.keyTakeaway,
-      category: topArticle.category,
-      confidence: 96,
-      vectorMatchScore: topArticle.similarityScore || 0.94
-    }));
+    // 2. Fetch real landmark precedents from the new ai-service (Qdrant Vector Search)
+    let landmarkPrecedents = [];
+    try {
+      const aiResponse = await fetch(process.env.AI_SERVICE_URL || 'http://localhost:5001/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: queryText, limit: 5 })
+      });
+      if (aiResponse.ok) {
+        const aiData = await aiResponse.json();
+        landmarkPrecedents = (aiData.results || []).map(r => ({
+          isPrecedent: true,
+          caseTitle: r.title || 'Unknown Case',
+          court: 'High Court',
+          year: 'Recent',
+          rulingSummary: r.summary || '',
+          keyTakeaway: r.guidance || '',
+          category: r.type || 'General',
+          confidence: r.relevance || 85,
+          vectorMatchScore: (r.relevance || 85) / 100
+        }));
+      } else {
+        console.warn('AI Service returned non-ok status for precedents.');
+      }
+    } catch (err) {
+      console.error('Failed to fetch from real AI Service, falling back to mock precedents:', err.message);
+      // Fallback if the AI microservice isn't running
+      const allArticles = await KnowledgeArticle.find({}).lean();
+      const rankedArticles = await VectorSearchService.rankByVectorSimilarity(
+        queryText,
+        allArticles,
+        a => `${a.title} ${a.summary} ${(a.actsAndSections || []).join(' ')}`
+      );
+      const topArticle = rankedArticles[0] || allArticles[0];
+      landmarkPrecedents = (topArticle?.precedents || []).map(p => ({
+        ...p,
+        category: topArticle.category,
+        confidence: 96,
+        vectorMatchScore: topArticle.similarityScore || 0.94
+      }));
+    }
 
     // Sort by vector confidence descending
     const sortedCases = scoredResults
@@ -331,15 +352,39 @@ class AILegalService {
    * Interactive RAG AI Chat Assistant for Legal Aid Counsel
    */
   static async answerLegalQuery(query, caseContext = null) {
-    // 1. Vector Search over Knowledge Articles
-    const allArticles = await KnowledgeArticle.find({}).lean();
-    const rankedArticles = await VectorSearchService.rankByVectorSimilarity(
-      query,
-      allArticles,
-      a => `${a.title} ${a.category} ${a.summary} ${(a.actsAndSections || []).join(' ')} ${(a.relevanceKeywords || []).join(' ')}`
-    );
+    // 1. Fetch real context from the new ai-service
+    let topArticles = [];
+    try {
+      const aiResponse = await fetch(process.env.AI_SERVICE_URL || 'http://localhost:5001/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query, limit: 3 })
+      });
+      if (aiResponse.ok) {
+        const aiData = await aiResponse.json();
+        topArticles = (aiData.results || []).map(r => ({
+          title: r.title,
+          category: r.type,
+          summary: r.summary,
+          actsAndSections: [r.guidance], // Map guidance as actionable step/act
+          proceduralChecklist: ["Refer to precedent: " + r.title],
+          matchPercentage: r.relevance || 90
+        }));
+      }
+    } catch (err) {
+      console.warn('AI Service unavailable, falling back to local mock vector search for Chat:', err.message);
+    }
 
-    const topArticles = rankedArticles.slice(0, 3);
+    // Fallback if AI Service is down or returned nothing
+    if (topArticles.length === 0) {
+      const allArticles = await KnowledgeArticle.find({}).lean();
+      const rankedArticles = await VectorSearchService.rankByVectorSimilarity(
+        query,
+        allArticles,
+        a => `${a.title} ${a.category} ${a.summary} ${(a.actsAndSections || []).join(' ')} ${(a.relevanceKeywords || []).join(' ')}`
+      );
+      topArticles = rankedArticles.slice(0, 3);
+    }
 
     // 2. Extract citations & precedents from retrieved vector chunks
     const citations = [];
@@ -351,7 +396,7 @@ class AILegalService {
 
     // 3. Build retrieved context for Cloud LLM
     const retrievedContext = topArticles.map(a => 
-      `[STATUTORY PROVISION: "${a.title}" (${a.category})]\n- Summary: ${a.summary}\n- Applicable Acts: ${(a.actsAndSections || []).join(', ')}\n- Procedural Steps: ${(a.proceduralChecklist || []).join('; ')}`
+      `[COURT PRECEDENT: "${a.title}"]\n- Summary: ${a.summary}\n- Note: ${(a.actsAndSections || []).join(', ')}`
     ).join('\n\n');
 
     // 4. Invoke Cloud LLM (Gemini / OpenAI) with fallback
