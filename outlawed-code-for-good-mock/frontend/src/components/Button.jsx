@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * Reusable Button Component with high contrast and explicit theme support
+ * Reusable Button Component with high-contrast visible text and robust styling
  * @param {Object} props
  * @param {'primary'|'secondary'|'danger'|'outline'|'taupe'|'dark'|'ghost'} [props.variant='primary']
  * @param {boolean} [props.isLoading=false]
@@ -17,35 +17,19 @@ export default function Button({
   className = '',
   ...props
 }) {
-  const baseStyle = 'inline-flex items-center justify-center font-semibold rounded-lg text-xs transition-all focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-2 tracking-tight cursor-pointer';
+  const baseStyle = 'inline-flex items-center justify-center font-bold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-2 tracking-tight cursor-pointer';
   
   const variants = {
-    primary: 'bg-charcoal-900 hover:bg-charcoal-800 text-sand-50 border border-charcoal-950 shadow-corporate focus:ring-charcoal-600',
-    secondary: 'bg-sand-100 hover:bg-sand-200 text-charcoal-900 border border-sand-300 shadow-corporate focus:ring-taupe-500',
-    taupe: 'bg-taupe-700 hover:bg-taupe-800 text-sand-50 border border-taupe-800 shadow-corporate focus:ring-taupe-500',
-    danger: 'bg-stone-800 hover:bg-red-700 text-white border border-stone-900 shadow-corporate focus:ring-stone-600',
-    outline: 'border border-sand-300 text-charcoal-900 bg-sand-50/80 hover:bg-sand-100 shadow-corporate focus:ring-charcoal-500',
-    dark: 'bg-charcoal-900 text-sand-50 border border-charcoal-700 hover:bg-charcoal-800 focus:ring-taupe-500',
-    ghost: 'bg-transparent text-charcoal-800 hover:bg-sand-100/60',
+    primary: 'bg-charcoal-900 hover:bg-charcoal-800 !text-white border border-charcoal-950 shadow-corporate focus:ring-charcoal-600',
+    secondary: 'bg-sand-100 hover:bg-sand-200 !text-black border border-sand-400 shadow-corporate focus:ring-taupe-500 font-bold',
+    taupe: 'bg-taupe-700 hover:bg-taupe-800 !text-white border border-taupe-800 shadow-corporate focus:ring-taupe-500',
+    danger: 'bg-red-700 hover:bg-red-800 !text-white border border-red-900 shadow-corporate focus:ring-red-500',
+    outline: 'border border-sand-400 !text-black bg-white hover:bg-sand-100 shadow-corporate focus:ring-charcoal-500 font-bold',
+    dark: 'bg-charcoal-950 !text-white border border-charcoal-700 hover:bg-charcoal-800 focus:ring-taupe-500',
+    ghost: 'bg-transparent !text-black hover:bg-sand-200/60 font-bold',
   };
 
-  // If custom bg/text/border classes are passed in className, avoid class collisions
-  const hasCustomBg = className.includes('bg-');
-  const hasCustomText = className.includes('text-');
-  const hasCustomBorder = className.includes('border-');
-
-  let variantStyle = variants[variant] || variants.primary;
-  if (hasCustomBg || hasCustomText || hasCustomBorder) {
-    if (hasCustomBg) {
-      variantStyle = variantStyle.replace(/bg-[^\s]+/g, '');
-    }
-    if (hasCustomText) {
-      variantStyle = variantStyle.replace(/text-[^\s]+/g, '');
-    }
-    if (hasCustomBorder) {
-      variantStyle = variantStyle.replace(/border-[^\s]+/g, '');
-    }
-  }
+  const variantStyle = variants[variant] || variants.primary;
 
   return (
     <button

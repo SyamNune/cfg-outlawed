@@ -146,7 +146,7 @@ export default function DocumentViewerModal({
               <Button 
                 variant="outline" 
                 onClick={handleOpenDirectly} 
-                className="text-xs flex items-center gap-1.5 text-taupe-900 border-sand-300 hover:bg-sand-100"
+                className="text-xs flex items-center gap-1.5 !text-black border-sand-400 hover:bg-sand-100 font-bold"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 Open File in New Tab
@@ -155,7 +155,7 @@ export default function DocumentViewerModal({
             <Button 
               onClick={handleDownload} 
               isLoading={isDownloading} 
-              className="text-xs flex items-center gap-1.5 bg-charcoal-900 hover:bg-charcoal-950 text-sand-50 font-bold"
+              className="text-xs flex items-center gap-1.5 bg-charcoal-900 hover:bg-charcoal-950 !text-white font-bold"
             >
               <Download className="h-3.5 w-3.5" />
               Download Original File
@@ -204,7 +204,7 @@ export default function DocumentViewerModal({
               type="button"
               onClick={() => setViewMode('preview')}
               className={`px-3 py-1 rounded-md transition-all ${
-                viewMode === 'preview' ? 'bg-charcoal-900 text-sand-50 shadow-xs' : 'text-charcoal-600 hover:text-charcoal-950'
+                viewMode === 'preview' ? 'bg-charcoal-900 !text-white shadow-xs' : 'text-charcoal-600 hover:text-charcoal-950'
               }`}
             >
               Live File Preview
@@ -213,7 +213,7 @@ export default function DocumentViewerModal({
               type="button"
               onClick={() => setViewMode('dossier')}
               className={`px-3 py-1 rounded-md transition-all ${
-                viewMode === 'dossier' ? 'bg-charcoal-900 text-sand-50 shadow-xs' : 'text-charcoal-600 hover:text-charcoal-950'
+                viewMode === 'dossier' ? 'bg-charcoal-900 !text-white shadow-xs' : 'text-charcoal-600 hover:text-charcoal-950'
               }`}
             >
               Verification Dossier
@@ -261,12 +261,12 @@ export default function DocumentViewerModal({
 
               <div className="pt-2 flex justify-center gap-2">
                 {isRemoteUrl && (
-                  <Button onClick={handleOpenDirectly} className="text-xs flex items-center gap-1.5 bg-charcoal-900 hover:bg-charcoal-950 text-sand-50 font-bold">
+                  <Button onClick={handleOpenDirectly} className="text-xs flex items-center gap-1.5 bg-charcoal-900 hover:bg-charcoal-950 !text-white font-bold">
                     <ExternalLink className="h-3.5 w-3.5" />
                     Open Source File
                   </Button>
                 )}
-                <Button onClick={handleDownload} variant="outline" className="text-xs flex items-center gap-1.5">
+                <Button onClick={handleDownload} variant="outline" className="text-xs flex items-center gap-1.5 !text-black font-bold border-sand-400">
                   <Download className="h-3.5 w-3.5" />
                   Download
                 </Button>
@@ -331,7 +331,7 @@ export default function DocumentViewerModal({
                 This document is secured in the <strong>OutLawed Case Management Vault & Supabase Cloud Storage</strong>.
               </p>
               <div className="pt-2 flex justify-center gap-2">
-                <Button onClick={handleDownload} className="text-xs flex items-center gap-1.5 bg-charcoal-900 hover:bg-charcoal-950 text-sand-50 font-bold">
+                <Button onClick={handleDownload} className="text-xs flex items-center gap-1.5 bg-charcoal-900 hover:bg-charcoal-950 !text-white font-bold">
                   <Download className="h-3.5 w-3.5" />
                   Download File
                 </Button>

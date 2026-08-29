@@ -40,7 +40,12 @@ import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import DocumentViewerModal from '../components/DocumentViewerModal';
 import { caseManagerService, caseService, authService } from '../services/api';
-import { uploadToSupabase } from '../config/supabase';
+import { 
+  getClientDisplayName, 
+  getClientDisplayPhone, 
+  getClientDisplayAddress, 
+  isCaseResolved 
+} from '../utils/privacy';
 
 export default function CaseManagerPortal({ user, initialTab = 'dashboard' }) {
   const [metrics, setMetrics] = useState(null);
@@ -357,7 +362,7 @@ export default function CaseManagerPortal({ user, initialTab = 'dashboard' }) {
             onClick={() => setActiveTab(tab.id)}
             className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all tracking-tight ${
               activeTab === tab.id
-                ? 'bg-charcoal-900 text-sand-50 shadow-corporate'
+                ? 'bg-charcoal-900 !text-white shadow-corporate'
                 : 'text-charcoal-600 hover:bg-sand-100 hover:text-charcoal-950'
             }`}
           >
@@ -524,7 +529,7 @@ export default function CaseManagerPortal({ user, initialTab = 'dashboard' }) {
                       <span className="font-bold text-gray-900 line-clamp-1">{c.title}</span>
                     </td>
                     <td className="px-4 py-3 font-medium text-gray-800">
-                      <div>{c.client?.name}</div>
+                      <div className="font-bold text-gray-900">{getClientDisplayName(c)}</div>
                       <div className="text-[10px] text-gray-400">{c.client?.category || c.category}</div>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -1027,14 +1032,14 @@ export default function CaseManagerPortal({ user, initialTab = 'dashboard' }) {
                     setAssignedExpertId(selectedCaseDetail.assignedExpert?._id || selectedCaseDetail.assignedExpert || '');
                     setIsAssignModalOpen(true);
                   }}
-                  className="text-xs !py-1 !px-2.5 font-bold bg-sand-200 hover:bg-sand-300 text-charcoal-950 border border-sand-300 shadow-corporate"
+                  className="text-xs !py-1 !px-2.5 font-bold bg-sand-200 hover:bg-sand-300 !text-black border border-sand-300 shadow-corporate"
                 >
                   Assign Team
                 </Button>
 
                 <Button
                   onClick={() => setIsDocModalOpen(true)}
-                  className="text-xs flex items-center gap-1.5 bg-charcoal-900 hover:bg-charcoal-800 text-sand-50 font-bold !py-1 !px-2.5 shadow-corporate"
+                  className="text-xs flex items-center gap-1.5 bg-charcoal-900 hover:bg-charcoal-800 !text-white font-bold !py-1 !px-2.5 shadow-corporate"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Upload Document
@@ -1085,10 +1090,12 @@ export default function CaseManagerPortal({ user, initialTab = 'dashboard' }) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <h5 className="font-bold text-slate-800 mb-1">Beneficiary Contact & Address</h5>
-                    <p className="text-slate-700">Phone: <strong>{selectedCaseDetail.client?.phone || 'N/A'}</strong></p>
-                    <p className="text-slate-700">Address: {selectedCaseDetail.client?.address || 'N/A'}</p>
-                    <p className="text-slate-700">Taluk/Village: {selectedCaseDetail.client?.villageTaluk || 'N/A'}</p>
+                    <h5 className="font-bold text-slate-800 mb-1">
+                      Beneficiary Contact & Address {isCaseResolved(selectedCaseDetail) && <span className="text-emerald-700 font-bold text-xs">(Protected)</span>}
+                    </h5>
+                    <p className="text-slate-700">Phone: <strong>{getClientDisplayPhone(selectedCaseDetail)}</strong></p>
+                    <p className="text-slate-700">Location: {getClientDisplayAddress(selectedCaseDetail)}</p>
+                    <p className="text-slate-700">Zone / District: {selectedCaseDetail.district || 'Mandya'}</p>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <h5 className="font-bold text-slate-800 mb-1">Assignment Information</h5>

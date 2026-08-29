@@ -66,7 +66,7 @@ async function generateEmbedding(text = '', dimensions = 384) {
   // Fallback: Deterministic normalized n-dimensional pseudo-semantic vector for local testing
   const vector = new Array(dimensions).fill(0);
   const words = text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
-  
+
   for (let i = 0; i < words.length; i++) {
     const word = words[i];
     for (let j = 0; j < word.length; j++) {

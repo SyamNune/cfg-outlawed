@@ -38,6 +38,13 @@ import ErrorMessage from '../components/ErrorMessage';
 import DocumentViewerModal from '../components/DocumentViewerModal';
 import { caseService, aiService } from '../services/api';
 import { uploadToSupabase } from '../config/supabase';
+import { 
+  getClientDisplayName, 
+  getClientDisplayPhone, 
+  getClientDisplayAddress, 
+  getFieldVisitDisplayLocation, 
+  isCaseResolved 
+} from '../utils/privacy';
 
 export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, initialTab = 'active' }) {
   const [cases, setCases] = useState([]);
@@ -457,7 +464,7 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
 
         <Button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-sand-100 hover:bg-sand-200 text-charcoal-950 font-bold text-xs flex items-center gap-2 py-2.5 px-4 shadow-corporate border border-sand-300 shrink-0"
+          className="bg-sand-100 hover:bg-sand-200 !text-black font-bold text-xs flex items-center gap-2 py-2.5 px-4 shadow-corporate border border-sand-400 shrink-0"
         >
           <FolderPlus className="h-4 w-4" />
           Add Legal Aid Case Intake
@@ -472,7 +479,7 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
             onClick={() => setMainPortalTab('active')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 tracking-tight ${
               mainPortalTab === 'active'
-                ? 'bg-charcoal-900 text-sand-50 shadow-corporate'
+                ? 'bg-charcoal-900 !text-white shadow-corporate'
                 : 'text-charcoal-600 hover:bg-sand-100 hover:text-charcoal-950'
             }`}
           >
@@ -484,7 +491,7 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
             onClick={() => setMainPortalTab('previous')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 tracking-tight ${
               mainPortalTab === 'previous'
-                ? 'bg-charcoal-900 text-sand-50 shadow-corporate'
+                ? 'bg-charcoal-900 !text-white shadow-corporate'
                 : 'text-charcoal-600 hover:bg-sand-100 hover:text-charcoal-950'
             }`}
           >
@@ -657,9 +664,9 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
                   {/* Beneficiary Badge */}
                   <div className="mt-3.5 p-2.5 rounded-lg bg-gray-50 border border-gray-150 space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-gray-800 flex items-center gap-1.5">
+                      <span className="font-bold text-gray-800 flex items-center gap-1.5" title={isCaseResolved(c) ? 'Beneficiary Name Masked for Resolved Case' : c.client?.name}>
                         <User className="h-3.5 w-3.5 text-gray-400" />
-                        {c.client?.name}
+                        {getClientDisplayName(c)}
                       </span>
                       <span className="text-[10px] text-gray-500">
                         {c.client?.age} yrs • {c.client?.gender}
@@ -667,9 +674,9 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-gray-500">
                       <span className="truncate max-w-[170px]">{c.client?.category}</span>
-                      <span className="flex items-center gap-0.5 text-[10px]">
-                        <MapPin className="h-3 w-3" />
-                        {c.district}
+                      <span className="flex items-center gap-0.5 text-[10px]" title={isCaseResolved(c) ? 'Landmark Protected' : c.district}>
+                        <MapPin className="h-3 w-3 text-taupe-500" />
+                        {isCaseResolved(c) ? `${c.district} (Protected)` : (c.client?.villageTaluk ? `${c.client.villageTaluk}, ${c.district}` : c.district)}
                       </span>
                     </div>
                   </div>
@@ -1075,8 +1082,8 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
                   onClick={() => handleToggleResolveCase(selectedCase._id, selectedCase.status)}
                   className={`!py-1.5 !px-3 text-xs font-bold flex items-center gap-1 shadow-corporate ${
                     selectedCase.status === 'resolved' || selectedCase.status === 'closed'
-                      ? 'bg-sand-300 text-charcoal-950 border border-sand-400 hover:bg-sand-200'
-                      : 'bg-sand-100 text-charcoal-950 border border-sand-300 hover:bg-sand-200'
+                      ? 'bg-sand-300 !text-black border border-sand-400 hover:bg-sand-200'
+                      : 'bg-sand-100 !text-black border border-sand-300 hover:bg-sand-200'
                   }`}
                 >
                   <Check className="h-3.5 w-3.5" />
@@ -1084,21 +1091,21 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
                 </Button>
                 <Button
                   onClick={() => setIsEscalateModalOpen(true)}
-                  className="bg-taupe-700 hover:bg-taupe-800 text-sand-50 !py-1.5 !px-3 text-xs font-bold flex items-center gap-1 shadow-corporate border border-taupe-800"
+                  className="bg-taupe-700 hover:bg-taupe-800 !text-white !py-1.5 !px-3 text-xs font-bold flex items-center gap-1 shadow-corporate border border-taupe-800"
                 >
                   <Scale className="h-3.5 w-3.5" />
                   Request Legal Expert
                 </Button>
                 <Button
                   onClick={() => setIsFieldVisitModalOpen(true)}
-                  className="bg-charcoal-800 hover:bg-charcoal-700 text-sand-50 !py-1.5 !px-3 text-xs font-bold flex items-center gap-1 shadow-corporate border border-charcoal-700"
+                  className="bg-charcoal-800 hover:bg-charcoal-700 !text-white !py-1.5 !px-3 text-xs font-bold flex items-center gap-1 shadow-corporate border border-charcoal-700"
                 >
                   <MapPin className="h-3.5 w-3.5" />
                   Log Field Visit
                 </Button>
                 <Button
                   onClick={() => setIsUpdateModalOpen(true)}
-                  className="bg-charcoal-900 text-sand-200 border border-charcoal-700 hover:bg-charcoal-800 !py-1.5 !px-3 text-xs font-bold flex items-center gap-1 shadow-corporate"
+                  className="bg-charcoal-900 !text-white border border-charcoal-700 hover:bg-charcoal-800 !py-1.5 !px-3 text-xs font-bold flex items-center gap-1 shadow-corporate"
                 >
                   <Clock className="h-3.5 w-3.5" />
                   Add Progress Note
@@ -1150,8 +1157,10 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
                   </h4>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                     <div>
-                      <span className="text-gray-400 block text-[10px]">Full Name</span>
-                      <span className="font-bold text-gray-900">{selectedCase.client?.name}</span>
+                      <span className="text-gray-400 block text-[10px]">
+                        Beneficiary Name {isCaseResolved(selectedCase) && <span className="text-emerald-700 font-bold">(Protected)</span>}
+                      </span>
+                      <span className="font-bold text-gray-900">{getClientDisplayName(selectedCase)}</span>
                     </div>
                     <div>
                       <span className="text-gray-400 block text-[10px]">Age / Gender</span>
@@ -1160,8 +1169,10 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-400 block text-[10px]">Phone Contact</span>
-                      <span className="font-bold text-gray-900">{selectedCase.client?.phone || 'N/A'}</span>
+                      <span className="text-gray-400 block text-[10px]">
+                        Phone Contact {isCaseResolved(selectedCase) && <span className="text-emerald-700 font-bold">(Confidential)</span>}
+                      </span>
+                      <span className="font-bold text-gray-900">{getClientDisplayPhone(selectedCase)}</span>
                     </div>
                     <div>
                       <span className="text-gray-400 block text-[10px]">Category</span>
@@ -1169,8 +1180,10 @@ export default function NyaayaMitraPortal({ user, initialOpenAddModal = false, i
                     </div>
                   </div>
                   <div className="mt-2 text-xs text-gray-600">
-                    <span className="text-gray-400 text-[10px] block">Address / Village</span>
-                    <span>{selectedCase.client?.address || 'Not specified'}, {selectedCase.client?.villageTaluk} ({selectedCase.district})</span>
+                    <span className="text-gray-400 text-[10px] block">
+                      Address / Village / Landmark {isCaseResolved(selectedCase) && <span className="text-emerald-700 font-bold">(Landmark Protected)</span>}
+                    </span>
+                    <span className="font-medium text-gray-800">{getClientDisplayAddress(selectedCase)}</span>
                   </div>
                 </div>
 

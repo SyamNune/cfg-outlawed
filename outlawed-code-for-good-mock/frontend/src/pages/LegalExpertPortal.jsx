@@ -32,6 +32,12 @@ import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import DocumentViewerModal from '../components/DocumentViewerModal';
 import { caseService } from '../services/api';
+import { 
+  getClientDisplayName, 
+  getClientDisplayAddress, 
+  getFieldVisitDisplayLocation, 
+  isCaseResolved 
+} from '../utils/privacy';
 
 export default function LegalExpertPortal({ user, initialTab = 'active' }) {
   const [cases, setCases] = useState([]);
@@ -240,7 +246,7 @@ export default function LegalExpertPortal({ user, initialTab = 'active' }) {
             <button
               onClick={() => setSelectedStatusTab('active')}
               className={`px-3 py-1.5 text-xs font-bold rounded-md whitespace-nowrap transition-all tracking-tight ${
-                selectedStatusTab === 'active' ? 'bg-charcoal-900 text-sand-50 shadow-corporate' : 'text-charcoal-600 hover:text-charcoal-950'
+                selectedStatusTab === 'active' ? 'bg-charcoal-900 !text-white shadow-corporate' : 'text-charcoal-600 hover:text-charcoal-950'
               }`}
             >
               Active Cases ({activeCasesCount})
@@ -248,7 +254,7 @@ export default function LegalExpertPortal({ user, initialTab = 'active' }) {
             <button
               onClick={() => setSelectedStatusTab('pending')}
               className={`px-3 py-1.5 text-xs font-bold rounded-md whitespace-nowrap transition-all tracking-tight ${
-                selectedStatusTab === 'pending' ? 'bg-charcoal-900 text-sand-50 shadow-corporate' : 'text-charcoal-600 hover:text-charcoal-950'
+                selectedStatusTab === 'pending' ? 'bg-charcoal-900 !text-white shadow-corporate' : 'text-charcoal-600 hover:text-charcoal-950'
               }`}
             >
               Pending Advice ({pendingAdviceCount})
@@ -256,7 +262,7 @@ export default function LegalExpertPortal({ user, initialTab = 'active' }) {
             <button
               onClick={() => setSelectedStatusTab('completed')}
               className={`px-3 py-1.5 text-xs font-bold rounded-md whitespace-nowrap flex items-center gap-1.5 transition-all tracking-tight ${
-                selectedStatusTab === 'completed' ? 'bg-taupe-800 text-sand-50 shadow-corporate' : 'text-taupe-800 hover:bg-sand-200'
+                selectedStatusTab === 'completed' ? 'bg-taupe-800 !text-white shadow-corporate' : 'text-taupe-800 hover:bg-sand-200'
               }`}
             >
               <Archive className="h-3.5 w-3.5" />
@@ -369,10 +375,10 @@ export default function LegalExpertPortal({ user, initialTab = 'active' }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                     <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
                       <span className="font-bold text-gray-700 uppercase tracking-wider text-[10px] block mb-1">
-                        Beneficiary Profile & Facts
+                        Beneficiary Profile & Facts {isCaseResolved(c) && <span className="text-emerald-700 font-bold">(Protected)</span>}
                       </span>
-                      <p className="text-gray-800 font-semibold">{c.client?.name} ({c.client?.age || 35} yrs, {c.client?.gender || 'Citizen'})</p>
-                      <p className="text-gray-600 text-[11px] mt-0.5">{c.client?.address || 'District Mandya / Bengaluru'}</p>
+                      <p className="text-gray-800 font-semibold">{getClientDisplayName(c)} ({c.client?.age || 35} yrs, {c.client?.gender || 'Citizen'})</p>
+                      <p className="text-gray-600 text-[11px] mt-0.5">{getClientDisplayAddress(c)}</p>
                       {c.facts && <p className="text-gray-600 mt-1 italic">Facts: {c.facts}</p>}
                     </div>
 
@@ -382,7 +388,7 @@ export default function LegalExpertPortal({ user, initialTab = 'active' }) {
                       </span>
                       {c.fieldVisits?.length > 0 ? (
                         <p className="text-emerald-950">
-                          <strong>{c.fieldVisits[0].location}:</strong> {c.fieldVisits[0].observations}
+                          <strong>{getFieldVisitDisplayLocation(c, c.fieldVisits[0].location)}:</strong> {c.fieldVisits[0].observations}
                         </p>
                       ) : (
                         <p className="text-emerald-700 italic">Verified at site during intake.</p>
@@ -481,7 +487,7 @@ export default function LegalExpertPortal({ user, initialTab = 'active' }) {
                       {!isResolved && (
                         <Button
                           onClick={() => handleMarkResolved(c._id, c.title)}
-                          className="text-xs !py-1 !px-2.5 bg-sand-200 hover:bg-sand-300 text-charcoal-950 border border-sand-300 font-bold flex items-center gap-1 shadow-corporate"
+                          className="text-xs !py-1 !px-2.5 bg-sand-200 hover:bg-sand-300 !text-black border border-sand-300 font-bold flex items-center gap-1 shadow-corporate"
                         >
                           <Check className="h-3.5 w-3.5" />
                           Mark Resolved
@@ -489,7 +495,7 @@ export default function LegalExpertPortal({ user, initialTab = 'active' }) {
                       )}
                       <Button
                         onClick={() => handleOpenAdviceModal(c)}
-                        className="bg-charcoal-900 hover:bg-charcoal-800 text-sand-50 font-bold text-xs flex items-center gap-1.5 shadow-corporate border border-charcoal-950"
+                        className="bg-charcoal-900 hover:bg-charcoal-800 !text-white font-bold text-xs flex items-center gap-1.5 shadow-corporate border border-charcoal-950"
                       >
                         <Scale className="h-4 w-4" />
                         {hasGuidance ? 'Review & Update Advice' : 'Provide Formal Legal Advice'}
@@ -515,7 +521,7 @@ export default function LegalExpertPortal({ user, initialTab = 'active' }) {
           footer={
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => setIsProvideAdviceModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSubmitAdvice} isLoading={isSubmittingAdvice} className="bg-charcoal-900 hover:bg-charcoal-800 text-sand-50 font-bold border border-charcoal-950 shadow-corporate">
+              <Button onClick={handleSubmitAdvice} isLoading={isSubmittingAdvice} className="bg-charcoal-900 hover:bg-charcoal-800 !text-white font-bold border border-charcoal-950 shadow-corporate">
                 Approve AI Review & Dispatch Advice
               </Button>
             </div>

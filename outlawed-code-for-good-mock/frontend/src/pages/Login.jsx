@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Scale, Lock, Mail, User, MapPin, Globe, Phone, PhoneCall, MessageSquare, ShieldCheck, CheckCircle2, ChevronDown } from 'lucide-react';
 import Button from '../components/Button';
 import ErrorMessage from '../components/ErrorMessage';
+import GoogleTranslator from '../components/GoogleTranslator';
 import { authService } from '../services/api';
 
 export default function Login({ onLoginSuccess }) {
@@ -177,14 +178,14 @@ export default function Login({ onLoginSuccess }) {
             <div className="flex flex-col sm:flex-row gap-2 pt-1">
               <a
                 href="tel:15100"
-                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-sand-100 hover:bg-sand-200 text-charcoal-950 font-black text-sm transition-all border border-sand-300 shadow-corporate"
+                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-sand-100 hover:bg-sand-200 !text-black font-black text-sm transition-all border border-sand-300 shadow-corporate"
               >
                 <Phone className="h-4 w-4" />
                 <span>Call 15100</span>
               </a>
               <a
                 href="tel:18004259988"
-                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-charcoal-800 hover:bg-charcoal-700 text-sand-100 font-bold text-xs transition-all border border-charcoal-700"
+                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-charcoal-800 hover:bg-charcoal-700 !text-white font-bold text-xs transition-all border border-charcoal-700"
               >
                 <Phone className="h-3.5 w-3.5 text-taupe-300" />
                 <span>1800-425-9988 (State)</span>
@@ -220,38 +221,38 @@ export default function Login({ onLoginSuccess }) {
               </div>
             </div>
 
-            {/* Selected District Details */}
+            {/* Selected District Details (Privacy Protected) */}
             <div className="p-3 rounded-lg bg-charcoal-950/80 border border-charcoal-800 space-y-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-taupe-400 block font-medium">Assigned Coordinator</span>
-                  <h5 className="text-xs font-bold text-sand-100">{currentContact.mitraName}</h5>
+                  <span className="text-[10px] text-taupe-400 block font-medium">Assigned DLSA Legal Aid Desk</span>
+                  <h5 className="text-xs font-bold text-sand-100">{selectedHelpDistrict} District Legal Services Desk</h5>
                 </div>
-                <span className="text-[10px] text-sand-400 font-mono">{currentContact.landline}</span>
+                <span className="text-[10px] text-sand-400 font-mono">Toll-Free: 15100</span>
               </div>
 
               <div className="text-[11px] text-sand-400">
-                <span className="block truncate">{currentContact.desk}</span>
+                <span className="block truncate">District Court Complex, {selectedHelpDistrict} (Official DLSA Office)</span>
               </div>
 
               <div className="flex items-center gap-2 pt-1">
                 <a
-                  href={`tel:${currentContact.phone.replace(/[^0-9+]/g, '')}`}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-sand-200 hover:bg-sand-300 text-charcoal-950 text-xs font-bold transition-all border border-sand-400"
+                  href="tel:15100"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-sand-200 hover:bg-sand-300 !text-black text-xs font-bold transition-all border border-sand-400"
                 >
                   <Phone className="h-3.5 w-3.5" />
-                  <span>{currentContact.phone}</span>
+                  <span>Call DLSA Desk (15100)</span>
                 </a>
 
                 <a
-                  href={`https://wa.me/${currentContact.whatsapp}?text=Hello%20Nyaaya%20Mitra,%20I%20need%20legal%20aid%20assistance%20in%20${selectedHelpDistrict}`}
+                  href={`https://wa.me/918004259988?text=Hello%20DLSA%20Legal%20Aid,%20I%20need%20assistance%20in%20${selectedHelpDistrict}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-charcoal-800 hover:bg-charcoal-700 text-sand-200 text-xs font-bold border border-charcoal-700"
-                  title="Connect via WhatsApp"
+                  title="Connect via Official Legal Aid WhatsApp"
                 >
                   <MessageSquare className="h-3.5 w-3.5 text-sand-200" />
-                  <span>WhatsApp</span>
+                  <span>Official WhatsApp</span>
                 </a>
               </div>
             </div>
@@ -269,15 +270,21 @@ export default function Login({ onLoginSuccess }) {
       <div className="lg:w-7/12 flex items-center justify-center p-6 sm:p-10 lg:p-12">
         <div className="w-full max-w-lg space-y-6">
           {/* Header */}
-          <div>
-            <h2 className="text-2xl font-black tracking-tight text-charcoal-950">
-              {isRegisterMode ? 'Register Platform Account' : 'Authorized Workspace Access'}
-            </h2>
-            <p className="text-xs text-charcoal-500 mt-1">
-              {isRegisterMode
-                ? 'Create an institutional account to participate in legal aid operations.'
-                : 'Sign in to access your designated role workspace, cases, and AI tools.'}
-            </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-black tracking-tight text-charcoal-950">
+                {isRegisterMode ? 'Register Platform Account' : 'Authorized Workspace Access'}
+              </h2>
+              <p className="text-xs text-charcoal-500 mt-1">
+                {isRegisterMode
+                  ? 'Create an institutional account to participate in legal aid operations.'
+                  : 'Sign in to access your designated role workspace, cases, and AI tools.'}
+              </p>
+            </div>
+            {/* Language Selector */}
+            <div className="shrink-0">
+              <GoogleTranslator compact />
+            </div>
           </div>
 
           {/* Authentication Card */}
@@ -293,7 +300,7 @@ export default function Login({ onLoginSuccess }) {
                 }}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all tracking-tight ${
                   !isRegisterMode
-                    ? 'bg-charcoal-900 text-sand-50 shadow-corporate'
+                    ? 'bg-charcoal-900 !text-white shadow-corporate'
                     : 'text-charcoal-600 hover:text-charcoal-950'
                 }`}
               >
@@ -308,7 +315,7 @@ export default function Login({ onLoginSuccess }) {
                 }}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all tracking-tight ${
                   isRegisterMode
-                    ? 'bg-charcoal-900 text-sand-50 shadow-corporate'
+                    ? 'bg-charcoal-900 !text-white shadow-corporate'
                     : 'text-charcoal-600 hover:text-charcoal-950'
                 }`}
               >
@@ -459,12 +466,89 @@ export default function Login({ onLoginSuccess }) {
                 <Button
                   type="submit"
                   isLoading={isLoading}
-                  className="w-full py-2.5 text-xs font-bold shadow-corporate bg-charcoal-900 hover:bg-charcoal-800 text-sand-50 rounded-lg border border-charcoal-950"
+                  className="w-full py-2.5 text-xs font-bold shadow-corporate bg-charcoal-900 hover:bg-charcoal-800 !text-white rounded-lg border border-charcoal-950"
                 >
                   {isRegisterMode ? 'Complete Registration & Access Workspace' : 'Sign In to Workspace'}
                 </Button>
               </div>
             </form>
+
+            {/* Quick Demo Personas Fill */}
+            {!isRegisterMode && (
+              <div className="pt-4 border-t border-sand-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-charcoal-700 uppercase tracking-wider">
+                    Quick Demo Logins (1-Click)
+                  </span>
+                  <span className="text-[10px] text-charcoal-400 font-mono">Password: password123</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('mitra@nyaaya.org');
+                      setPassword('password123');
+                      setApiError(null);
+                      setErrors({});
+                    }}
+                    className="p-2.5 rounded-lg border border-sand-200 bg-sand-50 hover:bg-sand-100 hover:border-sand-400 transition-all text-left group"
+                  >
+                    <span className="block text-[11px] font-bold text-charcoal-900 group-hover:text-amber-900">
+                      Nyaaya Mitra
+                    </span>
+                    <span className="block text-[10px] text-charcoal-500 font-mono truncate">mitra@nyaaya.org</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('manager@nyaaya.org');
+                      setPassword('password123');
+                      setApiError(null);
+                      setErrors({});
+                    }}
+                    className="p-2.5 rounded-lg border border-sand-200 bg-sand-50 hover:bg-sand-100 hover:border-sand-400 transition-all text-left group"
+                  >
+                    <span className="block text-[11px] font-bold text-charcoal-900 group-hover:text-amber-900">
+                      Case Manager
+                    </span>
+                    <span className="block text-[10px] text-charcoal-500 font-mono truncate">manager@nyaaya.org</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('expert@nyaaya.org');
+                      setPassword('password123');
+                      setApiError(null);
+                      setErrors({});
+                    }}
+                    className="p-2.5 rounded-lg border border-sand-200 bg-sand-50 hover:bg-sand-100 hover:border-sand-400 transition-all text-left group"
+                  >
+                    <span className="block text-[11px] font-bold text-charcoal-900 group-hover:text-amber-900">
+                      Legal Expert
+                    </span>
+                    <span className="block text-[10px] text-charcoal-500 font-mono truncate">expert@nyaaya.org</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('admin@nyaaya.org');
+                      setPassword('password123');
+                      setApiError(null);
+                      setErrors({});
+                    }}
+                    className="p-2.5 rounded-lg border border-sand-200 bg-sand-50 hover:bg-sand-100 hover:border-sand-400 transition-all text-left group"
+                  >
+                    <span className="block text-[11px] font-bold text-charcoal-900 group-hover:text-amber-900">
+                      Administrator
+                    </span>
+                    <span className="block text-[10px] text-charcoal-500 font-mono truncate">admin@nyaaya.org</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

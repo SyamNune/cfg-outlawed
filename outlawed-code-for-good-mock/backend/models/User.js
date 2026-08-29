@@ -68,9 +68,29 @@ userSchema.pre('save', async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Compare password method
+// Compare password method (supports bcrypt and fallback plain-text for directly inserted MongoDB records)
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  if (!this.password) return false;
+
+  // 1. Direct plaintext match (if inserted directly into MongoDB)
+  if (this.password === enteredPassword) {
+    try {
+      // Auto-upgrade plaintext password to bcrypt hash
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(enteredPassword, salt);
+      await this.save();
+    } catch (err) {
+      console.warn('Could not upgrade plaintext password to bcrypt:', err.message);
+    }
+    return true;
+  }
+
+  // 2. Standard bcrypt comparison
+  try {
+    return await bcrypt.compare(enteredPassword, this.password);
+  } catch (err) {
+    return false;
+  }
 };
 
 module.exports = mongoose.model('User', userSchema);

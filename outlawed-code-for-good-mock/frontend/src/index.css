@@ -82,3 +82,36 @@
 .editorial-divider {
   border-color: #eee7dd;
 }
+
+/* ==========================================================================
+   Google Translate Seamless Integration
+   Hides default Google top iframe, banner, and popups for clean native styling
+   ========================================================================== */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.skiptranslate:not(.custom-translate) {
+  display: none !important;
+}
+
+/* Fix font rendering in non-latin Indian scripts */
+[lang="kn"], [lang="hi"], [lang="te"], [lang="ta"], [lang="mr"], [lang="bn"], [lang="gu"], [lang="ml"], [lang="or"], [lang="pa"] {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.01em;
+}
+

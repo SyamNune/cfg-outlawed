@@ -1,5 +1,6 @@
 import React from 'react';
-import { Menu, LogOut, Scale, MapPin, Globe } from 'lucide-react';
+import { Menu, LogOut, Scale, MapPin } from 'lucide-react';
+import GoogleTranslator from './GoogleTranslator';
 
 /**
  * Reusable Navbar Component with Active Role Indicator
@@ -91,13 +92,8 @@ export default function Navbar({
           <span>{user?.district || 'Mandya'}</span>
         </div>
 
-        {/* Language Badge */}
-        {user?.language && (
-          <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg bg-charcoal-50 border border-charcoal-200 text-[11px] font-semibold text-charcoal-700 uppercase">
-            <Globe className="h-3 w-3 text-charcoal-500" />
-            <span>{user.language}</span>
-          </div>
-        )}
+        {/* Indian Regional Language Selector */}
+        <GoogleTranslator compact />
 
         {/* Role Badge */}
         <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-semibold shadow-corporate ${roleInfo.badge}`}>

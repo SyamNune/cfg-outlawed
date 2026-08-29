@@ -27,21 +27,35 @@ const loginUser = async (req, res, next) => {
       return res.status(400).json({ error: { message: 'Please provide email and password' } });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const cleanEmail = email.trim();
+    // Search by exact lowercase or case-insensitive regex match
+    const user = await User.findOne({
+      $or: [
+        { email: cleanEmail.toLowerCase() },
+        { email: { $regex: new RegExp(`^${cleanEmail.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i') } },
+        { username: cleanEmail.toLowerCase() }
+      ]
+    });
 
     if (user && (await user.matchPassword(password))) {
       return res.json({
         token: generateToken(user),
         user: {
           id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          district: user.district,
+          name: user.name || user.username || cleanEmail.split('@')[0],
+          email: user.email || cleanEmail,
+          role: user.role || 'PARALEGAL',
+          district: user.district || 'Mandya',
           language: user.language || 'en',
-          phone: user.phone,
-          specialization: user.specialization,
-          metrics: user.metrics,
+          phone: user.phone || '',
+          specialization: user.specialization || '',
+          metrics: user.metrics || {
+            casesHandled: 0,
+            fieldVisitsCount: 0,
+            resolvedCount: 0,
+            rating: 5.0,
+            pendingCases: 0,
+          },
         }
       });
     }
