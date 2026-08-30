@@ -115,3 +115,50 @@ body {
   letter-spacing: 0.01em;
 }
 
+/* ==========================================================================
+   Global Button High-Contrast Rules:
+   - Light-colored buttons MUST have dark/black text
+   - Dark-colored buttons MUST have crisp white text
+   ========================================================================== */
+button.bg-white,
+button.bg-sand-50,
+button.bg-sand-100,
+button.bg-sand-200,
+button.bg-sand-300,
+button.bg-gray-50,
+button.bg-gray-100,
+button.bg-gray-200,
+button.bg-slate-50,
+button.bg-slate-100,
+button.bg-slate-200,
+button.bg-emerald-50,
+button.bg-emerald-100,
+button.bg-amber-50,
+button.bg-amber-100,
+a.bg-sand-100,
+a.bg-sand-200,
+a.bg-white,
+a.bg-gray-100,
+.btn-light {
+  color: #0f1419 !important;
+  font-weight: 700 !important;
+}
+
+button.bg-charcoal-900,
+button.bg-charcoal-950,
+button.bg-charcoal-800,
+button.bg-black,
+button.bg-slate-900,
+button.bg-gray-900,
+button.bg-taupe-700,
+button.bg-taupe-800,
+button.bg-red-700,
+button.bg-purple-600,
+a.bg-charcoal-900,
+a.bg-charcoal-950,
+a.bg-charcoal-800,
+.btn-dark {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
